@@ -14,18 +14,18 @@ const sketch = () => {
 
     context.fillStyle = 'black';
 
-    const cx = width  * 0.5;
-    const cy = height * 0.5;
+    const cx = width  * 0;
+    const cy = height * 0;
 
     const w = width  * 0.01;
-    const h = height * 0.1;
+    const h = height * 0.7;
     let x, y;
 
-    const num = 40;
-    const radius = width * 0.3;
+    const num = 75;
+    const radius = width * 0.95;
 
     for (let i = 0; i < num; i++) {
-      const slice = math.degToRad(360 / num);
+      const slice = math.degToRad( 360 / num);
       const angle = slice * i;
 
       x = cx + radius * Math.sin(angle);
@@ -45,11 +45,14 @@ const sketch = () => {
       context.translate(cx, cy);
       context.rotate(-angle);
 
-      context.lineWidth = random.range(5, 20);
+      context.lineWidth = random.range(5, 25);
 
-      context.beginPath();
-      context.arc(0, 0, radius * random.range(0.7, 1.3), slice * random.range(1, -8), slice * random.range(1, 5));
-      context.stroke();
+      for(let i = 0; i<3;i++)
+      {
+        context.beginPath();
+        context.arc(0, 0, radius * random.range(0.2, 2.5), slice * random.range(1, -8), slice * random.range(1, 5));
+        context.stroke();
+      }
 
       context.restore();
     }
