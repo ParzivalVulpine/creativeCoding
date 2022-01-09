@@ -4,17 +4,16 @@ const canvasSketch = require('canvas-sketch');
 const math = require('canvas-sketch-util/math');
 const random = require('canvas-sketch-util/random');
 
-
 const settings = {
     dimensions: [1080, 1080],
     animate: true,
-    fps: 24,
+    fps: 30,
     duration: 15,
     playbackRate: 'throttle',
     loop: true
 };
 
-const sketch = ({width, height, playhead}) => {
+const sketch = ({width, height}) => {
 
     //First array for radius, second for startAngle, last for endAngle
     const arcRanges = [
@@ -22,12 +21,12 @@ const sketch = ({width, height, playhead}) => {
         [1, -8],
         [1, 5]
     ]
-
     const arcArray = []
     const numOfArcs = 50
-
-    const colorBeat = 4;
-    const colorCount = 0;
+    const cx = width * 0.5;
+    const cy = height * 0.5;
+    const radius = width * 0.3;
+    const colorArray = ["#e1243d", "#fffbe0", "#21211f", "#e934a8"];
 
     for (let i = 0; i < numOfArcs; i++) {
         const x = width * 0.5;
@@ -39,71 +38,61 @@ const sketch = ({width, height, playhead}) => {
 
         arcArray.push(new Arc(x, y, radius, startAngle, endAngle, lineWidth));
     }
-
-    const cx = width * 0.5;
-    const cy = height * 0.5;
-    const radius = width * 0.3;
-
-    const colorArray = ["#e1243d", "#fffbe0", "#21211f", "#e934a8"];
-
-    let colorTracker = new ColorTracker(colorArray, colorCount, 30, playhead);
-    let clockColor = new ColorTracker(colorArray, colorCount, 30, playhead)
     let clock = new Clock(cx, cy, 40, radius, height * 0.1);
+    let colorTracker = new ColorTracker(colorArray);
 
     return ({context, width, height, playhead}) => {
-
-        colorTracker.colorUpdate(context, playhead);
-
+        let colors = colorTracker.colorUpdate(playhead);
+        context.fillStyle = colors[0];
         context.fillRect(0, 0, width, height);
-
-        clockColor.colorUpdate(context, playhead)
+        context.fillStyle = colors[1];
 
         const w = width * 0.007;
         const h = height * 0.05;
-
 
         arcArray.forEach(arc => {
             arc.update(playhead);
             arc.draw(context);
         })
         clock.draw(context, w, h, playhead);
-        console.log(playhead);
     };
 };
 
 canvasSketch(sketch, settings);
 
-//TODO: Remove unused parameters and look for better solution for colorUpdate
 class ColorTracker {
-    constructor(colorArray, colorBeat, colorLimit, playhead) {
+    constructor(colorArray) {
         this.colorArray = colorArray;
-        this.colorBeat = colorBeat;
-        this.colorLimit = colorLimit;
+        this.frameColors = [random.pick(colorArray), random.pick(colorArray)];
 
-        this.duration = settings.duration;
+        while(this.frameColors[0] === this.frameColors[1])
+        {
+            this.frameColors[0] = random.pick(colorArray);
+        }
 
-        this.scheduledChanges = this.duration * 2;
+        this.scheduledChanges = settings.duration;
         this.fraction = 1 / this.scheduledChanges;
         this.currentFraction = 0;
-        this.color = 'black';
     }
 
-    colorUpdate(context, playhead) {
-
-        if (0.99 < playhead){
+    colorUpdate(playhead) {
+        if (this.currentFraction > 0.8 && playhead < this.fraction){
             this.currentFraction = 0;
         }
-        if (playhead > this.currentFraction){
-            let color = random.pick(this.colorArray)
-            while (color === context.fillStyle){
-                color = random.pick(this.colorArray);
+
+        if (playhead > this.currentFraction) {
+            let newColors = [this.frameColors[0], this.frameColors[1]];
+
+            while (newColors[0] === this.frameColors[0] || newColors[1] === this.frameColors[1] || newColors[0] === newColors[1]) {
+                newColors[0] = random.pick(this.colorArray);
+                newColors[1] = random.pick(this.colorArray);
             }
-            context.fillStyle = color;
-            this.currentFraction = this.currentFraction + this.fraction;
-            this.color = color;
+            this.currentFraction =this.currentFraction + this.fraction;
+            this.frameColors = newColors;
+            return newColors;
         }
-        else{
-            context.fillStyle = this.color;
+        else {
+            return this.frameColors;
         }
     }
 }
