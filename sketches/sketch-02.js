@@ -1,5 +1,3 @@
-//TODO: Clean up code.
-
 const canvasSketch = require('canvas-sketch');
 const math = require('canvas-sketch-util/math');
 const random = require('canvas-sketch-util/random');
@@ -7,8 +5,8 @@ const random = require('canvas-sketch-util/random');
 const settings = {
     dimensions: [1080, 1080],
     animate: true,
-    fps: 30,
-    duration: 15,
+    fps: 60,
+    duration: 10,
     playbackRate: 'throttle',
     loop: true
 };
@@ -26,7 +24,8 @@ const sketch = ({width, height}) => {
     const cx = width * 0.5;
     const cy = height * 0.5;
     const radius = width * 0.3;
-    const colorArray = ["#e1243d", "#fffbe0", "#21211f", "#e934a8"];
+    const colorArray = ["#2DF0D6","#F090C4","#F60C4C",
+                        "#1FB4FF","#c8c8cd","#292E3D"];
 
     for (let i = 0; i < numOfArcs; i++) {
         const x = width * 0.5;
@@ -47,14 +46,11 @@ const sketch = ({width, height}) => {
         context.fillRect(0, 0, width, height);
         context.fillStyle = colors[1];
 
-        const w = width * 0.007;
-        const h = height * 0.05;
-
         arcArray.forEach(arc => {
             arc.update(playhead);
             arc.draw(context);
         })
-        clock.draw(context, w, h, playhead);
+        clock.draw(context, width, height, playhead);
     };
 };
 
@@ -149,7 +145,9 @@ class Clock {
         return randomValues;
     }
 
-    draw(context, w, h, playhead) {
+    draw(context, width, height, playhead) {
+        const w = width * 0.007;
+        const h = height * 0.05;
         for (let i = 0; i < this.slices; i++) {
             const currentSlice = math.degToRad(360 / this.slices);
             const angle = currentSlice * i + (2 * Math.PI * playhead);
