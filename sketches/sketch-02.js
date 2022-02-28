@@ -6,7 +6,7 @@ const settings = {
     dimensions: [1080, 1080],
     animate: true,
     fps: 60,
-    duration: 10,
+    duration: 5,
     playbackRate: 'throttle',
     loop: true
 };
