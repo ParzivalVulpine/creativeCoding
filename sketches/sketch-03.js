@@ -36,7 +36,7 @@ const sketch = ({ width, height }) => {
     agents.forEach(agent => {
       agent.update();
       agent.draw(context);
-      agent.bounce(width, height);
+      agent.wrap(width, height);
     })
 
     colorCount += 1;
@@ -79,6 +79,13 @@ class Agent {
   bounce(width, height) {
     if (this.pos.x <= 0 || this.pos.x >= width)  this.vel.x *= -1;
     if (this.pos.y <= 0 || this.pos.y >= height) this.vel.y *= -1;
+  }
+
+  wrap(width, height){
+    if (this.pos.x < 0) this.pos.x = width;
+    if (this.pos.x > width) this.pos.x = 0;
+    if (this.pos.y < 0) this.pos.y = height;
+    if (this.pos.y > height) this.pos.y = 0;
   }
 
   update() {
@@ -149,7 +156,7 @@ function dist(agent1, agent2){
 }
 
 function saturatedColor(colorCount){
-  const h = colorCount * 1000;
+  const h = colorCount * 10;
   return hslToHex(h, 100, 50);
 }
 
